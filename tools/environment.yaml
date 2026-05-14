@@ -1,0 +1,37 @@
+name: raven
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - uv
+  - huggingface_hub
+  - gpustat
+  - cuda-version=12.8
+  - cuda-toolkit
+  - libgl
+  - libglib
+  - xorg-libx11
+  - xorg-libxext
+  - xorg-libsm
+  - xorg-libice
+  - clang<14
+  - clangxx<14
+  - cmake
+  - ninja
+  - pkg-config
+  - m4
+  - bison
+  - git
+  - curl
+  - wget
+  - unzip
+  - ffmpeg
+  - ncurses
+  - zsh
+  - gcc<14
+  - gxx<14
+  - numpy
+  - pip:
+      - torch==2.11.0+cu128
+      - --extra-index-url https://download.pytorch.org/whl/cu128
