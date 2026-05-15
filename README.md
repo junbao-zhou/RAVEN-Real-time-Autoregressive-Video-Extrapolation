@@ -133,3 +133,16 @@ Internally this:
 3. Aggregates with `python -m third_party.vbench.cal_final_score` to produce the Total / Quality / Semantic scores reported in the paper.
 
 Outputs land alongside the input dir as `<videos>_filtered/evaluation_results/`. Override `VBENCH_SAMPLES_PER_PROMPT` (default 5), `STATIC_FILTER_SAMPLES_PER_PROMPT` (default 25), `N`, `NNODES`, etc. via env vars. The eval reads `assets/vbench_all_dimension.txt` (the canonical VBench prompt list, shipped).
+
+## Citation
+
+If you find this work useful, please cite RAVEN. A BibTeX entry will be added when available.
+
+```bibtex
+@article{lu2026raven,
+  title = {RAVEN: Real-time Autoregressive Video Extrapolation with Consistency-model GRPO},
+  author = {Lu, Yanzuo and Zuo, Ronglai and Deng, Jiankang},
+  year = 2026,
+  journal = {arXiv preprint arXiv:2605.15190}
+}
+```
