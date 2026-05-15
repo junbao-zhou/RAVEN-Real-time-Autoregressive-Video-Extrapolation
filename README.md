@@ -27,6 +27,43 @@ Targets Hopper (SM 9.0) by default — adjust `TORCH_CUDA_ARCH_LIST` / `FLASH_AT
 
 Download the corresponding model checkpoints (Wan2.1-T2V-1.3B base, our released RAVEN and CM-GRPO weights, and any upstream baseline weights referenced by the configs you intend to run) yourself and point the `weight` fields in each config at the local paths.
 
+CM-GRPO ships in three interchangeable flavors on [`mvp-lab/RAVEN`](https://huggingface.co/mvp-lab/RAVEN); pick the one that matches your config:
+
+- **LoRA adapter** (`cmgrpo_raven_lora.safetensors`) — adapter only. CM-GRPO was trained on top of RAVEN, so the backbone loads `raven_model.pt` as the base and the adapter on top:
+
+  ```jsonc
+  "backbone": {
+      "weight": "/path/to/raven_model.pt",
+      "lora": {
+          "enabled": true,
+          "weight": "/path/to/cmgrpo_raven_lora.safetensors"
+      }
+  }
+  ```
+
+- **Base + LoRA bundle** (`cmgrpo_raven_full.pt`) — RAVEN base and the LoRA adapter packed into a single PEFT-wrapped state dict (the raw output of our DCP→torch checkpoint conversion). Skip the separate base weight and load the bundle through `lora.weight`:
+
+  ```jsonc
+  "backbone": {
+      "lora": {
+          "enabled": true,
+          "weight": "/path/to/cmgrpo_raven_full.pt"
+      }
+  }
+  ```
+
+- **Merged** (`cmgrpo_raven_merge.pt`) — full backbone with the adapter already baked into RAVEN. Drop the `lora` block entirely and load it as the base weight:
+
+  ```jsonc
+  "backbone": {
+      "weight": "/path/to/cmgrpo_raven_merge.pt"
+  }
+  ```
+
+  This flavor is also compatible with the `third_party/<baseline>/` inference entrypoints as well as the original upstream baseline implementations.
+
+RAVEN itself (`raven_model.pt`) is a single full backbone and follows the merged pattern.
+
 ## Running
 
 Every command dispatches through `tools/multi_run.sh <jsonc>`, which wraps `torchrun` over `main.py`. Override `N` (procs per node), `NNODES`, `MASTER_ADDR`, `MASTER_PORT` via env vars; defaults autodetect from SLURM or local GPUs. Set `D=<n>` to launch under `debugpy` with `n` procs.

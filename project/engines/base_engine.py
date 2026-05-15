@@ -587,21 +587,17 @@ class BaseEngine(_Base):
 
                 if lora_config.weight is not None:
                     lora_weight = maybe_download(lora_config.weight)
-                    use_dcp = os.path.isdir(lora_weight)
                     lora_weight = convert_dcp_to_torch_save(lora_weight)
                     logger.info(f"Loading lora for {model_name} from {lora_config.weight}")
                     if lora_weight.endswith(".safetensor") or lora_weight.endswith(".safetensors"):
                         state_dict = safe_load(lora_weight, device="cpu")
+                        msg = set_peft_model_state_dict(model, state_dict)
+                        logger.info(f"Loading lora for {model_name} from {lora_weight} with unexpected keys: {msg.unexpected_keys}")
                     else:
                         state_dict = torch.load(lora_weight, map_location="cpu", mmap=True)
-
-                    if use_dcp:
                         msg = model.load_state_dict(state_dict, strict=False, assign=True)
                         logger.info(f"Loading lora for {model_name} from {lora_weight} with unexpected keys: {msg.unexpected_keys}")
                         logger.info(f"Loading lora for {model_name} from {lora_weight} with missing keys: {msg.missing_keys}")
-                    else:
-                        msg = set_peft_model_state_dict(model, state_dict)
-                        logger.info(f"Loading lora for {model_name} from {lora_weight} with unexpected keys: {msg.unexpected_keys}")
 
                 if lora_config.save_peft and comm.get_rank() == 0:
                     peft_save_path = os.path.join(self.output_dir, f"{model_name}_peft.safetensors")
