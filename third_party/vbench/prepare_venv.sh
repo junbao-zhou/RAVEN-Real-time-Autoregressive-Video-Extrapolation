@@ -1,19 +1,15 @@
 #!/bin/bash
 set -exo pipefail
 
-eval "$(conda shell.bash hook)"
-export CONDA_ENV="${CONDA_ENV:-base}"
-conda activate "$CONDA_ENV"
-
 PREFIX="${PREFIX:-$HOME}/.cache"
 export UV_CACHE_DIR="${UV_CACHE_DIR:-$PREFIX/uv}"
 
-export CUDA_HOME="${CUDA_HOME:-$CONDA_PREFIX}"
+export CUDA_HOME="${CUDA_HOME:-${CONDA_PREFIX:-/usr/local/cuda}}"
 CUDA_TARGET_INCLUDES="$(printf ':%s' "$CUDA_HOME"/targets/*-linux/include)"
 CUDA_TARGET_LIBS="$(printf ':%s' "$CUDA_HOME"/targets/*-linux/lib)"
 export CPATH="${CUDA_TARGET_INCLUDES#:}${CPATH:+:$CPATH}"
 export LIBRARY_PATH="${CUDA_TARGET_LIBS#:}${LIBRARY_PATH:+:$LIBRARY_PATH}"
-export LD_LIBRARY_PATH="${CUDA_TARGET_LIBS#:}:$CONDA_PREFIX/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export LD_LIBRARY_PATH="${CUDA_TARGET_LIBS#:}${CONDA_PREFIX:+:$CONDA_PREFIX/lib}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
 export MAX_JOBS=${MAX_JOBS:-32}
 export VBENCH_CACHE_DIR="${VBENCH_CACHE_DIR:-$HOME/.cache/vbench}"

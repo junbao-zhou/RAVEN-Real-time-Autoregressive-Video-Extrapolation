@@ -1,17 +1,12 @@
 #!/bin/bash
 set -exo pipefail
 
-eval "$(conda shell.bash hook)"
-export CONDA_ENV="${CONDA_ENV:-base}"
-conda activate "$CONDA_ENV"
-source "venv/bin/activate"
-
-export CUDA_HOME="${CUDA_HOME:-$CONDA_PREFIX}"
+export CUDA_HOME="${CUDA_HOME:-${CONDA_PREFIX:-/usr/local/cuda}}"
 CUDA_TARGET_INCLUDES="$(printf ':%s' "$CUDA_HOME"/targets/*-linux/include)"
 CUDA_TARGET_LIBS="$(printf ':%s' "$CUDA_HOME"/targets/*-linux/lib)"
 export CPATH="${CUDA_TARGET_INCLUDES#:}${CPATH:+:$CPATH}"
 export LIBRARY_PATH="${CUDA_TARGET_LIBS#:}${LIBRARY_PATH:+:$LIBRARY_PATH}"
-export LD_LIBRARY_PATH="${CUDA_TARGET_LIBS#:}:$CONDA_PREFIX/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export LD_LIBRARY_PATH="${CUDA_TARGET_LIBS#:}${CONDA_PREFIX:+:$CONDA_PREFIX/lib}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
 N=${N:-${SLURM_GPUS_ON_NODE:-$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)}}  # nproc per node
 D=${D:-0}  # debug mode

@@ -1,19 +1,15 @@
 #!/bin/bash
 set -exo pipefail
 
-eval "$(conda shell.bash hook)"
-export CONDA_ENV="${CONDA_ENV:-base}"
-conda activate "$CONDA_ENV"
-
 PREFIX="${PREFIX:-$HOME}/.cache"
 export UV_CACHE_DIR="${UV_CACHE_DIR:-$PREFIX/uv}"
 
-export CUDA_HOME="${CUDA_HOME:-$CONDA_PREFIX}"
+export CUDA_HOME="${CUDA_HOME:-${CONDA_PREFIX:-/usr/local/cuda}}"
 CUDA_TARGET_INCLUDES="$(printf ':%s' "$CUDA_HOME"/targets/*-linux/include)"
 CUDA_TARGET_LIBS="$(printf ':%s' "$CUDA_HOME"/targets/*-linux/lib)"
 export CPATH="${CUDA_TARGET_INCLUDES#:}${CPATH:+:$CPATH}"
 export LIBRARY_PATH="${CUDA_TARGET_LIBS#:}${LIBRARY_PATH:+:$LIBRARY_PATH}"
-export LD_LIBRARY_PATH="${CUDA_TARGET_LIBS#:}:$CONDA_PREFIX/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export LD_LIBRARY_PATH="${CUDA_TARGET_LIBS#:}${CONDA_PREFIX:+:$CONDA_PREFIX/lib}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
 export MAX_JOBS=${MAX_JOBS:-32}
 export TORCH_CUDA_ARCH_LIST="9.0;9.0a"
@@ -28,7 +24,6 @@ uv pip sync tools/requirements.lock \
     --extra-index-url https://download.pytorch.org/whl/cu128 \
     --index-strategy unsafe-best-match \
     --link-mode=hardlink
-source "venv/bin/activate"
 
 if ! ls assets/flash_attn-2*.whl >/dev/null 2>&1; then
     pip wheel -v git+https://github.com/Dao-AILab/flash-attention.git@060c9188beec3a8b62b33a3bfa6d5d2d44975fab --no-build-isolation --no-deps --wheel-dir=./assets --no-cache-dir
