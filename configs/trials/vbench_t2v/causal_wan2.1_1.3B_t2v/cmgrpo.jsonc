@@ -10,7 +10,7 @@
         },
         "inference": {
             "meta_cfg": {
-                "guidance_scale": 3.0,
+                "guidance_scale": 1.0,
                 "chunk_size": 3,
                 "independent_first_chunk": 3,
                 "sink": 0,
