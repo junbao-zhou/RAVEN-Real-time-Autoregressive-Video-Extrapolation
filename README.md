@@ -12,7 +12,7 @@ Causal autoregressive video diffusion models support real-time streaming generat
 
 ## Setup
 
-The base environment (Python 3.10, CUDA 12.8 toolkit, `uv`, system libs) is provisioned via conda from `tools/environment.yaml`. The project itself then lives in a `uv`-managed venv with Python dependencies pinned in `tools/requirements.lock` (torch 2.11+cu128, transformers 4.57, diffusers 0.37, wandb, clearml), plus locally-built flash-attention 2/3 and magi-attention wheels.
+The base environment (Python 3.10, CUDA 12.8 toolkit, `uv`, system libs) is provisioned via conda from `tools/environment.yaml`. The project itself then lives in a `uv`-managed venv with Python dependencies pinned in `tools/requirements.lock` (torch 2.11+cu128, transformers 4.57, diffusers 0.37, tensorboard), plus locally-built flash-attention 2/3 and magi-attention wheels.
 
 ```sh
 conda env create -f tools/environment.yaml       # creates the `raven` conda env
