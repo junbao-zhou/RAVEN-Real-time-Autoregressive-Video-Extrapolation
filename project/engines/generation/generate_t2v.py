@@ -128,7 +128,7 @@ class GenerateT2V(BaseEngine):
         infer_config: GenerateT2VInferConfig,
         local_dir: str,
         remote_dir: str = None,
-        save_fn: Callable[[int], str] = lambda idx: f"{idx:04d}.mp4",  # convert index to filename for saving
+        save_fn: Callable[[int, str], str] = lambda idx, prompt: f"{idx:04d}-{prompt[:50].replace(' ', '_')}.mp4",  # convert index and prompt to filename for saving
         resume: bool = False,
         yield_inputs: bool = False,
     ):  # main inference loop yielding results, called by both run and generate
@@ -181,7 +181,7 @@ class GenerateT2V(BaseEngine):
         for idx, positive_prompt, negative_prompt in zip(indices, positive_prompts, negative_prompts):
             if resume:
                 if infer_config.save_on_every:
-                    filename = save_fn(idx)
+                    filename = save_fn(idx, positive_prompt)
                     local_paths = [
                         os.path.join(
                             local_dir,
@@ -193,8 +193,8 @@ class GenerateT2V(BaseEngine):
                     if all(os.path.exists(local_path) for local_path in local_paths):
                         logger.info(f"Skip existing sample {idx} in save_on_every folders")
                         continue
-                elif os.path.exists(os.path.join(local_dir, save_fn(idx))):
-                    logger.info(f"Skip existing sample {idx} at {os.path.join(local_dir, save_fn(idx))}")
+                elif os.path.exists(os.path.join(local_dir, save_fn(idx, positive_prompt))):
+                    logger.info(f"Skip existing sample {idx} at {os.path.join(local_dir, save_fn(idx, positive_prompt))}")
                     continue
             all_items.append((idx, positive_prompt, negative_prompt))
 
@@ -271,7 +271,7 @@ class GenerateT2V(BaseEngine):
                 videos_to_save = videos[i*infer_config.num_samples_per_prompt:(i+1)*infer_config.num_samples_per_prompt]
 
                 if infer_config.save_on_every:
-                    filename = save_fn(indices[i])
+                    filename = save_fn(indices[i], positive_prompts[i])
                     for sample_idx in range(infer_config.num_samples_per_prompt):
                         sample_local_dir = os.path.join(local_dir, f"idx_{sample_idx:04d}")
                         sample_remote_dir = os.path.join(remote_dir, f"idx_{sample_idx:04d}") if remote_dir is not None else None
@@ -293,7 +293,7 @@ class GenerateT2V(BaseEngine):
                     ASYNC_FUTS[f"video_idx{i}"] = GenerateT2V.save_results_async(
                         fut=ASYNC_FUTS[f"video_idx{i}"],
                         videos=videos_to_save,
-                        local_path=os.path.join(local_dir, save_fn(indices[i])),
+                        local_path=os.path.join(local_dir, save_fn(indices[i], positive_prompts[i])),
                         remote_dir=remote_dir,
                         fps=infer_config.fps,
                         nrow=infer_config.nrow,
