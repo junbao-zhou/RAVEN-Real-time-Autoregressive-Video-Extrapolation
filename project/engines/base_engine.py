@@ -338,7 +338,7 @@ class BaseEngine(_Base):
             format=fmt,
             datefmt=datefmt,
             filename=f"{self.output_dir}/log_rank{comm.get_rank()}.txt",
-            filemode="a"
+            filemode="w"
         )
 
         if comm.get_local_rank() == 0:
