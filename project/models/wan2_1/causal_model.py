@@ -7,6 +7,7 @@ from typing import List, Optional
 
 import torch
 import torch.cuda.amp as amp
+import torch.amp as amp
 import torch.nn as nn
 from diffusers.configuration_utils import register_to_config
 from einops import rearrange
@@ -176,7 +177,7 @@ class NaiveCache:
         return merged_cache
 
 
-@amp.autocast(enabled=False)
+@amp.autocast(device_type="cuda", enabled=False)
 def apply_latent_pos_embed(xs, grid_sizes, freqs, frame_shifts=None, packed=False):
     # n, c = x.size(2), x.size(3) // 2
     c = freqs.size(1)
