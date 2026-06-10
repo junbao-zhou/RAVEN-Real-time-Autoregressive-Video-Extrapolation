@@ -95,15 +95,35 @@ def setup_fsdp2(model: nn.Module, fsdp_config: FSDPConfig, model_name: str):
             return True
         return False
 
-    def _apply_fsdp_recursive(module: nn.Module) -> None:
-        for child in module.children():
-            _apply_fsdp_recursive(child)
-        if _should_wrap(module):
-            fully_shard(module, **fsdp_kwargs)
+    _wrap_count = [0]
 
+    def _apply_fsdp_recursive(module: nn.Module, depth: int = 0) -> None:
+        for child in module.children():
+            _apply_fsdp_recursive(child, depth + 1)
+        if _should_wrap(module):
+            import time
+            t0 = time.perf_counter()
+            fully_shard(module, **fsdp_kwargs)
+            elapsed = time.perf_counter() - t0
+            _wrap_count[0] += 1
+            name = getattr(module, "layer_name", type(module).__name__)
+            logger.info(f"[fsdp2 shard #{_wrap_count[0]}] {model_name} | depth={depth} | {name} | {elapsed:.3f}s")
+
+    import time
+    device = torch.device(f"cuda:{comm.get_local_rank()}")
+    logger.info(f"[fsdp2] moving {model_name} to {device} ...")
+    t_to_device = time.perf_counter()
+    model.to(device)
+    logger.info(f"[fsdp2] moved {model_name} to {device} ({time.perf_counter()-t_to_device:.1f}s)")
+
+    t_start = time.perf_counter()
+    logger.info(f"[fsdp2] starting recursive shard for {model_name}")
     for child in model.children():
         _apply_fsdp_recursive(child)
+    logger.info(f"[fsdp2] recursive shard done ({_wrap_count[0]} modules, {time.perf_counter()-t_start:.1f}s), now sharding root ...")
+    t0 = time.perf_counter()
     fully_shard(model, **fsdp_kwargs)
+    logger.info(f"[fsdp2] root shard done ({time.perf_counter()-t0:.1f}s)")
 
     logger.info(f"wrapped FSDP2 for {model_name}: {model}")
     params = sum([p.to_local().numel() for p in model.parameters()]) / 1e6
