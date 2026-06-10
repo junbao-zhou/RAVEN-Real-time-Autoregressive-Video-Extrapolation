@@ -10,7 +10,7 @@ export LD_LIBRARY_PATH="${CUDA_TARGET_LIBS#:}${CONDA_PREFIX:+:$CONDA_PREFIX/lib}
 
 N=${N:-${SLURM_GPUS_ON_NODE:-$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)}}  # nproc per node
 D=${D:-0}  # debug mode
-export NCCL_DEBUG=INFO
+export NCCL_DEBUG=WARN
 export NCCL_IB_TIMEOUT=31
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export OMP_NUM_THREADS=$(( $(nproc --all) / $N ))
