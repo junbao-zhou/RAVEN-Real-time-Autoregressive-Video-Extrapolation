@@ -26,9 +26,9 @@ __pycache__/
 
 !third_party/
 !third_party/*
-!third_party/*/*.py
-!third_party/*/*.sh
-!third_party/*/*.yaml
+!third_party/*/**.py
+!third_party/*/**.sh
+!third_party/*/**.yaml
 
 !tools/
 !tools/*

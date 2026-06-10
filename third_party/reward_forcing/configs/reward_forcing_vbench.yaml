@@ -29,10 +29,8 @@ guidance_scale: 3.0
 denoising_loss_type: flow
 mixed_precision: true
 seed: 0
-wandb_host: WANDB_HOST
-wandb_key: WANDB_KEY
-wandb_entity: WANDB_ENTITY
-wandb_project: WANDB_PROJECT
+tracker_backend: tensorboard
+tensorboard_dir: runs/reward_forcing_vbench_extended/tensorboard
 sharding_strategy: hybrid_full
 lr: 2.0e-06
 lr_critic: 4.0e-07

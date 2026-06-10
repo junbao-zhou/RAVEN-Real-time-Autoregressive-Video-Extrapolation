@@ -1,12 +1,12 @@
 from dataclasses import dataclass
+import json
 from numbers import Real
 import os
 from typing import Any
 
 import numpy as np
 import torch
-import wandb
-from clearml import Task
+from torch.utils.tensorboard import SummaryWriter
 
 
 @dataclass
@@ -29,47 +29,25 @@ def to_builtin_config(value: Any) -> Any:
     return value
 
 
-class WandbWriter:
-    def __init__(self, run):
-        self.run = run
-        self.run.define_metric("*", step_metric="train/step")
+class TensorBoardWriter:
+    def __init__(self, log_dir: str, cfg):
+        self.writer = SummaryWriter(log_dir=log_dir)
+        config_text = json.dumps(
+            to_builtin_config(cfg),
+            indent=2,
+            ensure_ascii=False,
+        )
+        self.writer.add_text("config", f"```json\n{config_text}\n```", 0)
 
-    def log(self, writer_dict: dict[str, Any], step: int | None = None) -> None:
-        if step is None:
-            step = writer_dict.get("train/step")
+    @staticmethod
+    def _to_step(step: Any) -> int | None:
         if torch.is_tensor(step):
             step = step.item()
         if isinstance(step, np.generic):
             step = step.item()
-        payload = {}
-        for key, value in writer_dict.items():
-            if key == "train/step":
-                continue
-            if isinstance(value, LoggedMedia):
-                format = os.path.splitext(value.local_path)[1].lstrip(".") or None
-                payload[key] = wandb.Video(value.local_path, format=format)
-            else:
-                payload[key] = value
-        if step is not None:
-            payload["train/step"] = step
-        if payload:
-            self.run.log(payload)
-
-    def finish(self, exit_code: int = 0) -> None:
-        self.run.finish(exit_code=exit_code)
-
-
-class ClearMLWriter:
-    def __init__(self, task: Task):
-        self.task = task
-        self.logger = task.get_logger()
-        self.logger.set_default_debug_sample_history(-1)
-
-    @staticmethod
-    def _split_key(key: str) -> tuple[str, str]:
-        if "/" in key:
-            return key.split("/", 1)
-        return "metrics", key
+        if step is None:
+            return None
+        return int(step)
 
     @staticmethod
     def _to_scalar(value: Any) -> float | int | None:
@@ -85,63 +63,82 @@ class ClearMLWriter:
             return value
         return None
 
+    @staticmethod
+    def _to_histogram(value: Any) -> torch.Tensor | None:
+        if torch.is_tensor(value):
+            if value.numel() == 0:
+                return None
+            return value.detach().float().cpu()
+        if isinstance(value, np.ndarray):
+            if value.size == 0 or not np.issubdtype(value.dtype, np.number):
+                return None
+            return torch.from_numpy(value).float()
+        return None
+
     def log(self, writer_dict: dict[str, Any], step: int | None = None) -> None:
         if step is None:
             step = writer_dict.get("train/step")
-        if torch.is_tensor(step):
-            step = step.item()
-        if isinstance(step, np.generic):
-            step = step.item()
-        iteration = int(step) if step is not None else 0
+        global_step = self._to_step(step)
         for key, value in writer_dict.items():
             if key == "train/step":
                 continue
-            title, series = self._split_key(key)
             if isinstance(value, LoggedMedia):
-                self.logger.report_media(
-                    title=title,
-                    series=series,
-                    iteration=iteration,
-                    local_path=value.local_path,
-                    max_history=value.max_history,
-                )
+                self._log_media(key, value, global_step)
                 continue
             scalar = self._to_scalar(value)
             if scalar is not None:
-                self.logger.report_scalar(
-                    title=title,
-                    series=series,
-                    value=scalar,
-                    iteration=iteration,
+                self.writer.add_scalar(key, scalar, global_step)
+                continue
+            histogram = self._to_histogram(value)
+            if histogram is not None:
+                self.writer.add_histogram(key, histogram, global_step)
+                continue
+            if isinstance(value, str):
+                self.writer.add_text(key, value, global_step)
+        self.writer.flush()
+
+    def _log_media(self, key: str, value: LoggedMedia, step: int | None) -> None:
+        suffix = os.path.splitext(value.local_path)[1].lower()
+        try:
+            if suffix in {".bmp", ".jpeg", ".jpg", ".png", ".webp"}:
+                from torchvision.io import read_image
+
+                image = read_image(value.local_path)
+                self.writer.add_image(key, image, step)
+                return
+            if suffix in {".avi", ".gif", ".mkv", ".mov", ".mp4", ".webm"}:
+                from torchvision.io import read_video
+
+                video, _, info = read_video(
+                    value.local_path,
+                    pts_unit="sec",
+                    output_format="TCHW",
                 )
+                if video.numel() == 0:
+                    self.writer.add_text(f"{key}/local_path", value.local_path, step)
+                    return
+                frames_per_second = int(round(info.get("video_fps", 4)))
+                self.writer.add_video(
+                    key,
+                    video.unsqueeze(0),
+                    step,
+                    fps=max(frames_per_second, 1),
+                )
+                return
+        except Exception as error:
+            self.writer.add_text(f"{key}/local_path", value.local_path, step)
+            self.writer.add_text(f"{key}/media_error", str(error), step)
+            return
+        self.writer.add_text(f"{key}/local_path", value.local_path, step)
 
     def finish(self, exit_code: int = 0) -> None:
-        self.task.flush(wait_for_uploads=True)
-        self.task.close()
+        self.writer.flush()
+        self.writer.close()
 
 
 def init_writer(persistence_config, output_dir: str, cfg):
     backend = persistence_config.tracker_backend.lower()
-    if backend == "wandb":
-        run = wandb.init(
-            project=persistence_config.proj_name,
-            name=persistence_config.exp_name,
-            dir=output_dir,
-            config=to_builtin_config(cfg),
-            id=persistence_config.exp_name,
-            resume="auto",
-        )
-        return WandbWriter(run)
-    if backend == "clearml":
-        task = Task.init(
-            project_name=persistence_config.proj_name,
-            task_name=persistence_config.exp_name,
-            reuse_last_task_id=True,
-            continue_last_task=False,
-            output_uri=False,
-            auto_connect_arg_parser=False,
-            auto_connect_frameworks=False,
-        )
-        task.connect(to_builtin_config(cfg), name="config")
-        return ClearMLWriter(task)
-    raise ValueError(f"Unsupported tracker backend: {persistence_config.tracker_backend}")
+    if backend not in {"tensorboard", "tb"}:
+        raise ValueError(f"Only TensorBoard tracker backend is supported: {persistence_config.tracker_backend}")
+    log_dir = os.path.join(output_dir, "tensorboard")
+    return TensorBoardWriter(log_dir=log_dir, cfg=cfg)

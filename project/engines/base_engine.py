@@ -171,7 +171,7 @@ class PersistenceConfig(Dataclass):
     save_dir: str = field(default=None)  # remote dir
     proj_name: str = field(default=None)
     exp_name: str = field(default=None)
-    tracker_backend: str = field(default="wandb")
+    tracker_backend: str = field(default="tensorboard")
     save_interval: int = field(default=1000)
     save_start_iter: int = field(default=0)
     val_interval: int = field(default=1000)

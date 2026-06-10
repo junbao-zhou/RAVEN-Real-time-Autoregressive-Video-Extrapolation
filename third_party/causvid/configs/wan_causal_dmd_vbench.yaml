@@ -30,11 +30,9 @@ fake_task_type: bidirectional_video
 denoising_loss_type: flow
 mixed_precision: true
 seed: 0
-wandb_host: WANDB_HOST
-wandb_key: WANDB_KEY
-wandb_entity: tyin
-wandb_project: causvid
-wandb_name: wan_causal_dmd
+tracker_backend: tensorboard
+tensorboard_dir: runs/causvid_vbench_extended/tensorboard
+tensorboard_name: wan_causal_dmd
 sharding_strategy: hybrid_full
 lr: 2.0e-06
 beta1: 0.9
