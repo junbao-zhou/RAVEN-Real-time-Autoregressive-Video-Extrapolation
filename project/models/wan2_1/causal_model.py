@@ -518,7 +518,7 @@ class CausalWanAttentionBlock(nn.Module):
         # complex indexes
         packed_latent_indexes=None,
     ):
-        with amp.autocast(dtype=torch.float32):
+        with amp.autocast(device_type="cuda", dtype=torch.float32):
             e = (self.modulation + e).unbind(dim=1)
 
         # self-attention
@@ -531,7 +531,7 @@ class CausalWanAttentionBlock(nn.Module):
             past_key_values_self_attn, update_past_key_values_self_attn, key_value_lens_self_attn,
             packed_query_indexes_self_attn, packed_past_key_value_indexes_self_attn)
 
-        with amp.autocast(dtype=torch.float32):
+        with amp.autocast(device_type="cuda", dtype=torch.float32):
             x = x + y * e[2]
 
         # cross-attention & ffn function
@@ -545,7 +545,7 @@ class CausalWanAttentionBlock(nn.Module):
         modulated_norm2_x = norm2_x * (1 + e[4]) + e[3]
         y = self.ffn(modulated_norm2_x)
 
-        with amp.autocast(dtype=torch.float32):
+        with amp.autocast(device_type="cuda", dtype=torch.float32):
             x = x + y * e[5]
 
         return x
@@ -560,7 +560,7 @@ class CausalWanHead(wan.Head):
 
             modulation: Shape [1, 2, C]
         """
-        with amp.autocast(dtype=torch.float32):
+        with amp.autocast(device_type="cuda", dtype=torch.float32):
             e = (self.modulation + e.unsqueeze(1)).unbind(dim=1)
             x = self.head(self.norm(x) * (1 + e[1]) + e[0])
         return x
@@ -849,7 +849,7 @@ class CausalWanModel(wan.WanModel):
             if len(packed_noisy_latent_relative_indexes) > 0:
                 packed_timesteps[packed_noisy_latent_relative_indexes] = torch.repeat_interleave(
                     t, packed_noisy_latent_seqlens, dim=0)
-            with amp.autocast(dtype=torch.float32):
+            with amp.autocast(device_type="cuda", dtype=torch.float32):
                 e = self.time_embedding(
                     wan.sinusoidal_embedding_1d(self.freq_dim, packed_timesteps).float())
                 e0 = self.time_projection(e).unflatten(1, (6, self.dim))
