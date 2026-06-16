@@ -49,6 +49,7 @@ from project.utils.activation_offload import enable_activation_offloading
 from project.utils.config import CfgNode
 from project.utils.dataclass import Dataclass
 from project.utils.file_io import maybe_download, maybe_upload
+from project.utils.logging_setup import install_excepthooks, install_structured_record_factory
 from project.utils.lr_scheduler import LR_SCHEDULER_REGISTRY, BaseLRScheduler
 from project.utils.mfu import enable_flops_accumulate, get_mfu, register_flops_hook
 from project.utils.misc import to_torch_dtype
@@ -331,7 +332,10 @@ class BaseEngine(_Base):
         # this is necessary in case several packages call logging first and break the configuration here
         for handler in logging.root.handlers[:]:
             logging.root.removeHandler(handler)
-        fmt = "[%(asctime)s %(filename)s:%(lineno)s] %(message)s"
+        # enrich every record with rank / relpath / qualname (ClassName.method);
+        # see project/utils/logging_setup.py
+        install_structured_record_factory()
+        fmt = "[rank:%(rank)s] [%(asctime)s %(relpath)s:%(lineno)s] %(qualname)s : %(message)s"
         datefmt = "%Y-%m-%d %H:%M:%S"
         logging.basicConfig(
             level=logging.INFO,
@@ -346,6 +350,11 @@ class BaseEngine(_Base):
             console_handler.setLevel(logging.INFO)
             console_handler.setFormatter(logging.Formatter(fmt, datefmt))
             logger.addHandler(console_handler)
+
+        # route uncaught exceptions (main thread / worker threads / __del__) into
+        # the per-rank log file, not just stderr; see project/utils/logging_setup.py
+        install_excepthooks(logger)
+
 
         # suppress redundant print from others
         def print_pass(*args, **kwargs):
@@ -441,7 +450,7 @@ class BaseEngine(_Base):
                         if autocast_config.enabled:
                             dtype = to_torch_dtype(autocast_config.dtype)
                             cache_enabled = autocast_config.cache_enabled
-                            stack.enter_context(torch.autocast("cuda", dtype=dtype, cache_enabled=cache_enabled))
+                            stack.enter_context(torch.autocast(device_type="cuda", dtype=dtype, cache_enabled=cache_enabled))
                         return func(*args, **kwargs)
 
                 if hasattr(orig_func, "__self__"):
