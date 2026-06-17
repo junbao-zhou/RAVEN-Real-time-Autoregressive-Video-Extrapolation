@@ -27,7 +27,7 @@
             "sampler": {
                 "_class_name": "ConsistencySampler"
             },
-            "positive_prompt": "assets/baseline_prompts.txt",
+            "positive_prompt": "assets/MovieGenVideoBench.txt",
             "negative_prompt": "",
             "num_prompts": -1,
             "num_samples_per_prompt": 1,
