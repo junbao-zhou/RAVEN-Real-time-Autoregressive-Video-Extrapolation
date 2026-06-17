@@ -183,7 +183,7 @@
             "_config": {
                 "__inherit__": "configs/models/wan2.1_1.3B/dit_t2v.jsonc"
             },
-            "weight": "/root/models/zhuhz22/Causal-Forcing/chunkwise/causal_ode.pt",
+            "weight": "./models/zhuhz22/Causal-Forcing/chunkwise/causal_ode.pt",
             "weight_dtype": "float32",
             "mfu_enabled": true,
             "autocast": {
@@ -229,7 +229,7 @@
             "_config": {
                 "__inherit__": "configs/models/wan2.1_1.3B/dit_t2v.jsonc"
             },
-            "weight": "/root/models/Wan-AI/Wan2.1-T2V-1.3B/diffusion_pytorch_model.safetensors",
+            "weight": "./models_cpfs/Wan-AI/Wan2.1-T2V-1.3B/diffusion_pytorch_model.safetensors",
             "weight_dtype": "float32",
             "mfu_enabled": true,
             "autocast": {
@@ -259,7 +259,7 @@
             "_config": {
                 "__inherit__": "configs/models/wan2.1_14B/dit_t2v.jsonc"
             },
-            "weight": "/root/models/Wan-AI/Wan2.1-T2V-14B/diffusion_pytorch_model.safetensors.index.json",
+            "weight": "./models_cpfs/Wan-AI/Wan2.1-T2V-14B/diffusion_pytorch_model.safetensors.index.json",
             "weight_dtype": "float32",
             "mfu_enabled": true,
             "autocast": {
@@ -276,7 +276,7 @@
             "_config": {
                 "__inherit__": "configs/models/wan2.1_1.3B/vae.jsonc"
             },
-            "weight": "/root/models/Wan-AI/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth",
+            "weight": "./models_cpfs/Wan-AI/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth",
             "weight_dtype": "float32",
             "mfu_enabled": true,
             "autocast": {
@@ -292,7 +292,7 @@
             "_class_name": "HuggingfaceTokenizer",
             "_config": {
                 "__inherit__": "configs/models/wan2.1_1.3B/tokenizer.jsonc",
-                "name": "/root/models/Wan-AI/Wan2.1-T2V-1.3B/google/umt5-xxl"
+                "name": "./models_cpfs/Wan-AI/Wan2.1-T2V-1.3B/google/umt5-xxl"
             }
         },
         "text_encoder": {
@@ -300,7 +300,7 @@
             "_config": {
                 "__inherit__": "configs/models/wan2.1_1.3B/text_encoder.jsonc"
             },
-            "weight": "/root/models/Wan-AI/Wan2.1-T2V-1.3B/models_t5_umt5-xxl-enc-bf16.pth",
+            "weight": "./models_cpfs/Wan-AI/Wan2.1-T2V-1.3B/models_t5_umt5-xxl-enc-bf16.pth",
             "weight_dtype": "bfloat16",
             "mfu_enabled": true,
             "fsdp": {

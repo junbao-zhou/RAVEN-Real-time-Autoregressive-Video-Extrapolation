@@ -533,7 +533,7 @@ if __name__ == "__main__":
     parser.add_argument("--video-dir", required=True)
     parser.add_argument("--src-txt", default="assets/vbench_all_dimension.txt")
     parser.add_argument("--tgt-txt", default="assets/vbench_self_forcing_extended.txt")
-    parser.add_argument("--model-path", default="/root/models/CodeGoat24/UnifiedReward-qwen-32b")
+    parser.add_argument("--model-path", default="./models/CodeGoat24/UnifiedReward-qwen-32b")
     args = parser.parse_args()
 
     dist_initialized = False

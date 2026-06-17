@@ -207,7 +207,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Distributed VBench imaging first/last-second drift evaluation.")
     parser.add_argument("--video-dir", required=True)
-    parser.add_argument("--model-path", default="/root/models/vbench/pyiqa_model/musiq_spaq_ckpt-358bb6af.pth")
+    parser.add_argument("--model-path", default="./models/vbench/pyiqa_model/musiq_spaq_ckpt-358bb6af.pth")
     parser.add_argument("--seconds", type=float, default=1.0)
     args = parser.parse_args()
 

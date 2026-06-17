@@ -951,8 +951,8 @@ if __name__ == "__main__":
     parser.add_argument("--video-dir", required=True)
     parser.add_argument("--src-txt", default="assets/vbench_all_dimension.txt")
     parser.add_argument("--tgt-txt", default="assets/vbench_self_forcing_extended.txt")
-    parser.add_argument("--model-path", default="/root/models/KlingTeam/VideoReward/checkpoint-11352/model.pth")
-    parser.add_argument("--base-model-path", default="/root/models/Qwen/Qwen2-VL-2B-Instruct")
+    parser.add_argument("--model-path", default="./models/KlingTeam/VideoReward/checkpoint-11352/model.pth")
+    parser.add_argument("--base-model-path", default="./models/Qwen/Qwen2-VL-2B-Instruct")
     parser.add_argument("--out-jsonl", default=None, help="If set, on global rank 0, write per-video scores to this path (.jsonl).")
     args = parser.parse_args()
 
