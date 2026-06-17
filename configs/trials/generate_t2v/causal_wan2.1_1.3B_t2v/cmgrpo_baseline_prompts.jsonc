@@ -30,7 +30,7 @@
             "positive_prompt": "assets/baseline_prompts.txt",
             "negative_prompt": "",
             "num_prompts": -1,
-            "num_samples_per_prompt": 8,
+            "num_samples_per_prompt": 1,
             "num_frames": 81,
             "height": 480,
             "width": 832,
@@ -75,7 +75,7 @@
                 "dtype": "bfloat16"
             },
             "fsdp": {
-                "enabled": true,
+                "enabled": false,
                 "auto_wrap_policy": "wan2_1_dit_wrap_policy"
             },
             "lora": {
@@ -125,7 +125,7 @@
             "weight_dtype": "bfloat16",
             "mfu_enabled": true,
             "fsdp": {
-                "enabled": true,
+                "enabled": false,
                 "auto_wrap_policy": "wan2_1_t5_wrap_policy"
             }
         }
