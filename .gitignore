@@ -18,6 +18,11 @@ __pycache__/
 !assets/
 !assets/*.txt
 
+!configs/
+!configs/**/
+!configs/**/*.jsonc
+
+
 !project/
 !project/*
 !project/*/*.py
