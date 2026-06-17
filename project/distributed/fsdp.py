@@ -110,11 +110,21 @@ def setup_fsdp2(model: nn.Module, fsdp_config: FSDPConfig, model_name: str):
             logger.info(f"[fsdp2 shard #{_wrap_count[0]}] {model_name} | depth={depth} | {name} | {elapsed:.3f}s")
 
     import time
-    device = torch.device(f"cuda:{comm.get_local_rank()}")
-    logger.info(f"[fsdp2] moving {model_name} to {device} ...")
-    t_to_device = time.perf_counter()
-    model.to(device)
-    logger.info(f"[fsdp2] moved {model_name} to {device} ({time.perf_counter()-t_to_device:.1f}s)")
+    # 暂时把 model.to(dtype) 注释掉。 因为 weight_dtype 是 fsdp 的 precision policy
+    # 在 FSDP 之前 to(dtype) 主要是为了先变成 bfloat16, 加快搬运到 GPU 的速度。
+    # 但是这个加速不明显， 并且不一定跟 fsdp 里的 weight_dtype 行为一致， 可能会降低精度
+    # weight_dtype = to_torch_dtype(fsdp_config.weight_dtype)
+    # logger.info(f"[fsdp2] casting {model_name} to {weight_dtype} ...")
+    # model.to(weight_dtype)
+
+    # 暂时把 model.to(device) 注释掉。
+    # 这一步是为了加快后面的 recursive fsdp
+    # 但是把整个模型先搬运到 GPU 上似乎会占用显存， 即使后面 FSDP 了也不一定能完全释放。
+    # device = torch.device(f"cuda:{comm.get_local_rank()}")
+    # logger.info(f"[fsdp2] moving {model_name} to {device} ...")
+    # t_to_device = time.perf_counter()
+    # model.to(device)
+    # logger.info(f"[fsdp2] moved {model_name} to {device} ({time.perf_counter()-t_to_device:.1f}s)")
 
     t_start = time.perf_counter()
     logger.info(f"[fsdp2] starting recursive shard for {model_name}")
