@@ -1,5 +1,5 @@
-model_name: /root/models/Wan-AI/Wan2.1-T2V-1.3B
-checkpoint_path: /root/models/gdhe17/Self-Forcing/checkpoints/self_forcing_dmd.pt
+model_name: ./models_cpfs/Wan-AI/Wan2.1-T2V-1.3B
+checkpoint_path: ./models/gdhe17/Self-Forcing/checkpoints/self_forcing_dmd.pt
 data_path: assets/vbench_self_forcing_extended.txt
 extended_prompt_path: null
 output_folder: runs/self_forcing_vbench_extended

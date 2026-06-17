@@ -1,5 +1,5 @@
-model_path: /root/models/Wan-AI/Wan2.1-T2V-1.3B
-checkpoint_folder: /root/models/tianweiy/CausVid/autoregressive_checkpoint
+model_path: ./models_cpfs/Wan-AI/Wan2.1-T2V-1.3B
+checkpoint_folder: ./models/tianweiy/CausVid/autoregressive_checkpoint
 output_folder: runs/causvid_vbench_extended
 prompt_file_path: assets/vbench_self_forcing_extended.txt
 

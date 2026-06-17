@@ -197,7 +197,7 @@
             "_config": {
                 "__inherit__": "configs/models/wan2.1_1.3B/dit_t2v.jsonc"
             },
-            "weight": "/root/models/Wan-AI/Wan2.1-T2V-1.3B/diffusion_pytorch_model.safetensors",
+            "weight": "./models_cpfs/Wan-AI/Wan2.1-T2V-1.3B/diffusion_pytorch_model.safetensors",
             "weight_dtype": "float32",
             "mfu_enabled": true,
             "autocast": {
@@ -217,7 +217,7 @@
             "_config": {
                 "__inherit__": "configs/models/vbench_raft.jsonc"
             },
-            "weight": "/root/models/vbench/raft_model/models/raft-things.pth",
+            "weight": "./models/vbench/raft_model/models/raft-things.pth",
             "weight_dtype": "float32",
             "mfu_enabled": true
         },
@@ -226,8 +226,8 @@
             "_config": {
                 "__inherit__": "configs/models/vbench_aesthetic.jsonc"
             },
-            "pretrained_model_name_or_path": "/root/models/vbench/clip_model/ViT-L-14.pt",
-            "weight": "/root/models/vbench/aesthetic_model/emb_reader/sa_0_4_vit_l_14_linear.pth",
+            "pretrained_model_name_or_path": "./models/vbench/clip_model/ViT-L-14.pt",
+            "weight": "./models/vbench/aesthetic_model/emb_reader/sa_0_4_vit_l_14_linear.pth",
             "weight_dtype": "bfloat16",
             "mfu_enabled": true
         },
@@ -236,7 +236,7 @@
             "_config": {
                 "__inherit__": "configs/models/vbench_imaging.jsonc"
             },
-            "weight": "/root/models/vbench/pyiqa_model/musiq_spaq_ckpt-358bb6af.pth",
+            "weight": "./models/vbench/pyiqa_model/musiq_spaq_ckpt-358bb6af.pth",
             "weight_dtype": "bfloat16",
             "mfu_enabled": true
         },
@@ -245,7 +245,7 @@
             "_config": {
                 "__inherit__": "configs/models/vbench_motion_smoothness.jsonc"
             },
-            "pretrained_model_name_or_path": "/root/models/vbench/amt_model/amt-s.pth",
+            "pretrained_model_name_or_path": "./models/vbench/amt_model/amt-s.pth",
             "weight_dtype": "float32",
             "mfu_enabled": true
         },
@@ -253,9 +253,9 @@
             "_class_name": "VideoAlignRewardModel",
             "_config": {
                 "__inherit__": "configs/models/videoalign.jsonc",
-                "base_model_name_or_path": "/root/models/Qwen/Qwen2-VL-2B-Instruct"
+                "base_model_name_or_path": "./models/Qwen/Qwen2-VL-2B-Instruct"
             },
-            "weight": "/root/models/KlingTeam/VideoReward/checkpoint-11352/model.pth",
+            "weight": "./models/KlingTeam/VideoReward/checkpoint-11352/model.pth",
             "weight_dtype": "bfloat16",
             "mfu_enabled": true,
             "fsdp": {
@@ -268,7 +268,7 @@
             "_config": {
                 "__inherit__": "configs/models/wan2.1_1.3B/vae.jsonc"
             },
-            "weight": "/root/models/Wan-AI/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth",
+            "weight": "./models_cpfs/Wan-AI/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth",
             "weight_dtype": "float32",
             "mfu_enabled": true,
             "autocast": {
@@ -284,7 +284,7 @@
             "_class_name": "HuggingfaceTokenizer",
             "_config": {
                 "__inherit__": "configs/models/wan2.1_1.3B/tokenizer.jsonc",
-                "name": "/root/models/Wan-AI/Wan2.1-T2V-1.3B/google/umt5-xxl"
+                "name": "./models_cpfs/Wan-AI/Wan2.1-T2V-1.3B/google/umt5-xxl"
             }
         },
         "text_encoder": {
@@ -292,7 +292,7 @@
             "_config": {
                 "__inherit__": "configs/models/wan2.1_1.3B/text_encoder.jsonc"
             },
-            "weight": "/root/models/Wan-AI/Wan2.1-T2V-1.3B/models_t5_umt5-xxl-enc-bf16.pth",
+            "weight": "./models_cpfs/Wan-AI/Wan2.1-T2V-1.3B/models_t5_umt5-xxl-enc-bf16.pth",
             "weight_dtype": "bfloat16",
             "mfu_enabled": true,
             "fsdp": {
